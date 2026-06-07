@@ -1,0 +1,320 @@
+﻿{
+    "projectName":  "IsPlayer",
+    "projectDescription":  "IsPlayer is a Kotlin Android local video player that scans/imports videos, organizes them by folders, stores metadata in Room, and plays videos through a custom Compose/Media3 full-screen player.",
+    "languages":  [
+                      "Kotlin",
+                      "XML",
+                      "Gradle Kotlin DSL",
+                      "TOML"
+                  ],
+    "frameworks":  [
+                       "Android",
+                       "Jetpack Compose",
+                       "Material3",
+                       "Hilt",
+                       "Room",
+                       "Navigation Compose",
+                       "Coil",
+                       "Media3 ExoPlayer",
+                       "Accompanist Permissions"
+                   ],
+    "files":  [
+                  {
+                      "path":  ".gitignore",
+                      "sizeLines":  16,
+                      "fileCategory":  "data"
+                  },
+                  {
+                      "path":  "app/.gitignore",
+                      "sizeLines":  1,
+                      "fileCategory":  "data"
+                  },
+                  {
+                      "path":  "app/build.gradle.kts",
+                      "sizeLines":  90,
+                      "fileCategory":  "config"
+                  },
+                  {
+                      "path":  "app/proguard-rules.pro",
+                      "sizeLines":  21,
+                      "fileCategory":  "config"
+                  },
+                  {
+                      "path":  "app/src/androidTest/java/com/example/isplayer/ExampleInstrumentedTest.kt",
+                      "sizeLines":  24,
+                      "fileCategory":  "test"
+                  },
+                  {
+                      "path":  "app/src/main/AndroidManifest.xml",
+                      "sizeLines":  32,
+                      "fileCategory":  "config"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/data/local/dao/FolderDao.kt",
+                      "sizeLines":  24,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/data/local/dao/VideoDao.kt",
+                      "sizeLines":  24,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/data/local/database/AppDatabase.kt",
+                      "sizeLines":  19,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/data/local/entity/FolderEntity.kt",
+                      "sizeLines":  30,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/data/local/entity/VideoEntity.kt",
+                      "sizeLines":  48,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/data/repository/VideoRepositoryImpl.kt",
+                      "sizeLines":  168,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/di/AppModule.kt",
+                      "sizeLines":  39,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/di/RepositoryModule.kt",
+                      "sizeLines":  28,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/domain/model/Folder.kt",
+                      "sizeLines":  8,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/domain/model/LocalVideo.kt",
+                      "sizeLines":  17,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/domain/repository/VideoRepository.kt",
+                      "sizeLines":  19,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/domain/usecase/AddFolderUseCase.kt",
+                      "sizeLines":  13,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/domain/usecase/GetFoldersUseCase.kt",
+                      "sizeLines":  15,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/domain/usecase/GetVideosUseCase.kt",
+                      "sizeLines":  15,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/domain/usecase/ImportVideoUseCase.kt",
+                      "sizeLines":  17,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/domain/usecase/ScanDefaultFolderUseCase.kt",
+                      "sizeLines":  13,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/domain/usecase/SyncVideosUseCase.kt",
+                      "sizeLines":  66,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/IsPlayerApp.kt",
+                      "sizeLines":  20,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/MainActivity.kt",
+                      "sizeLines":  85,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/presentation/components/BottomNavBar.kt",
+                      "sizeLines":  68,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/presentation/components/SearchBar.kt",
+                      "sizeLines":  53,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/presentation/components/TopBar.kt",
+                      "sizeLines":  52,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/presentation/components/VideoGridItemCard.kt",
+                      "sizeLines":  146,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/presentation/components/VideoItemCard.kt",
+                      "sizeLines":  130,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/presentation/home/DrawerContent.kt",
+                      "sizeLines":  203,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/presentation/home/HomeScreen.kt",
+                      "sizeLines":  552,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/presentation/home/HomeViewModel.kt",
+                      "sizeLines":  250,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/presentation/player/PlayerScreen.kt",
+                      "sizeLines":  762,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/presentation/player/PlayerViewModel.kt",
+                      "sizeLines":  38,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/ui/theme/Color.kt",
+                      "sizeLines":  14,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/ui/theme/Theme.kt",
+                      "sizeLines":  49,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/ui/theme/Type.kt",
+                      "sizeLines":  34,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/utils/ModifierExt.kt",
+                      "sizeLines":  34,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/java/com/example/isplayer/utils/VideoMetadataUtils.kt",
+                      "sizeLines":  62,
+                      "fileCategory":  "code"
+                  },
+                  {
+                      "path":  "app/src/main/res/drawable/ic_launcher_background.xml",
+                      "sizeLines":  6,
+                      "fileCategory":  "resource"
+                  },
+                  {
+                      "path":  "app/src/main/res/drawable/ic_launcher_foreground_inset.xml",
+                      "sizeLines":  7,
+                      "fileCategory":  "resource"
+                  },
+                  {
+                      "path":  "app/src/main/res/mipmap-anydpi/ic_launcher.xml",
+                      "sizeLines":  5,
+                      "fileCategory":  "resource"
+                  },
+                  {
+                      "path":  "app/src/main/res/mipmap-anydpi/ic_launcher_round.xml",
+                      "sizeLines":  5,
+                      "fileCategory":  "resource"
+                  },
+                  {
+                      "path":  "app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml",
+                      "sizeLines":  6,
+                      "fileCategory":  "resource"
+                  },
+                  {
+                      "path":  "app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml",
+                      "sizeLines":  6,
+                      "fileCategory":  "resource"
+                  },
+                  {
+                      "path":  "app/src/main/res/values/colors.xml",
+                      "sizeLines":  10,
+                      "fileCategory":  "resource"
+                  },
+                  {
+                      "path":  "app/src/main/res/values/strings.xml",
+                      "sizeLines":  3,
+                      "fileCategory":  "resource"
+                  },
+                  {
+                      "path":  "app/src/main/res/values/themes.xml",
+                      "sizeLines":  5,
+                      "fileCategory":  "resource"
+                  },
+                  {
+                      "path":  "app/src/main/res/xml/backup_rules.xml",
+                      "sizeLines":  13,
+                      "fileCategory":  "resource"
+                  },
+                  {
+                      "path":  "app/src/main/res/xml/data_extraction_rules.xml",
+                      "sizeLines":  19,
+                      "fileCategory":  "resource"
+                  },
+                  {
+                      "path":  "app/src/test/java/com/example/isplayer/ExampleUnitTest.kt",
+                      "sizeLines":  17,
+                      "fileCategory":  "test"
+                  },
+                  {
+                      "path":  "build.gradle.kts",
+                      "sizeLines":  8,
+                      "fileCategory":  "config"
+                  },
+                  {
+                      "path":  "gradle.properties",
+                      "sizeLines":  23,
+                      "fileCategory":  "config"
+                  },
+                  {
+                      "path":  "gradle/libs.versions.toml",
+                      "sizeLines":  56,
+                      "fileCategory":  "config"
+                  },
+                  {
+                      "path":  "gradle/wrapper/gradle-wrapper.properties",
+                      "sizeLines":  7,
+                      "fileCategory":  "config"
+                  },
+                  {
+                      "path":  "gradlew",
+                      "sizeLines":  186,
+                      "fileCategory":  "script"
+                  },
+                  {
+                      "path":  "gradlew.bat",
+                      "sizeLines":  90,
+                      "fileCategory":  "script"
+                  },
+                  {
+                      "path":  "settings.gradle.kts",
+                      "sizeLines":  24,
+                      "fileCategory":  "config"
+                  }
+              ],
+    "totalFiles":  59,
+    "filteredByIgnore":  3305
+}

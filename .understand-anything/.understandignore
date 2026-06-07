@@ -1,0 +1,12 @@
+﻿# .understandignore - patterns for files/dirs to exclude from analysis
+# Generated for IsPlayer. Built/generated and binary files are excluded by the local analyzer.
+build/
+app/build/
+.gradle/
+.idea/
+.kotlin/
+*.apk
+*.jar
+*.png
+*.dm
+local.properties

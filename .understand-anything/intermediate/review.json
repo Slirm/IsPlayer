@@ -1,0 +1,105 @@
+﻿{
+    "issues":  [
+
+               ],
+    "warnings":  [
+                     "Generated with local PowerShell analyzer because Node/pnpm pipeline was unavailable in this environment.",
+                     "Git metadata is unavailable because this directory is not a Git repository."
+                 ],
+    "stats":  {
+                  "totalNodes":  164,
+                  "totalEdges":  176,
+                  "totalLayers":  10,
+                  "tourSteps":  7,
+                  "nodeTypes":  [
+                                    {
+                                        "type":  "resource",
+                                        "count":  13
+                                    },
+                                    {
+                                        "type":  "config",
+                                        "count":  8
+                                    },
+                                    {
+                                        "type":  "file",
+                                        "count":  36
+                                    },
+                                    {
+                                        "type":  "class",
+                                        "count":  30
+                                    },
+                                    {
+                                        "type":  "function",
+                                        "count":  75
+                                    },
+                                    {
+                                        "type":  "pipeline",
+                                        "count":  2
+                                    }
+                                ],
+                  "edgeTypes":  [
+                                    {
+                                        "type":  "contains",
+                                        "count":  105
+                                    },
+                                    {
+                                        "type":  "imports",
+                                        "count":  49
+                                    },
+                                    {
+                                        "type":  "routes",
+                                        "count":  2
+                                    },
+                                    {
+                                        "type":  "calls",
+                                        "count":  4
+                                    },
+                                    {
+                                        "type":  "depends_on",
+                                        "count":  7
+                                    },
+                                    {
+                                        "type":  "implements",
+                                        "count":  1
+                                    },
+                                    {
+                                        "type":  "reads_from",
+                                        "count":  2
+                                    },
+                                    {
+                                        "type":  "defines_schema",
+                                        "count":  2
+                                    },
+                                    {
+                                        "type":  "configures",
+                                        "count":  4
+                                    }
+                                ],
+                  "fileCategories":  [
+                                         {
+                                             "category":  "data",
+                                             "count":  2
+                                         },
+                                         {
+                                             "category":  "config",
+                                             "count":  8
+                                         },
+                                         {
+                                             "category":  "test",
+                                             "count":  2
+                                         },
+                                         {
+                                             "category":  "code",
+                                             "count":  34
+                                         },
+                                         {
+                                             "category":  "resource",
+                                             "count":  11
+                                         },
+                                         {
+                                             "category":  "script",
+                                             "count":  2
+                                         }
+                                     ]
+              }
+}
