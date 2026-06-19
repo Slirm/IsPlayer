@@ -2,6 +2,7 @@ package com.example.isplayer.presentation.home
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,7 +20,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import javax.inject.Inject
 
 enum class SortOrder {
@@ -166,11 +172,12 @@ class HomeViewModel @Inject constructor(
     }
 
     fun importVideo(uri: Uri) {
-        viewModelScope.launch {
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
             _uiState.update { it.copy(isLoading = true, error = null) }
             try {
                 // Get video metadata and import it
                 val fileInfo = getFileInfo(uri)
+                Log.d("VideoImport", "Single file imported: uri=$uri, name=${fileInfo.first}, size=${fileInfo.second}")
                 val video = VideoMetadataUtils.extractVideoMetadata(context, uri, fileInfo.second, fileInfo.first)
                 val videoWithFolder = video.copy(folderId = _currentFolderId.value)
                 importVideoUseCase(videoWithFolder)
@@ -182,12 +189,14 @@ class HomeViewModel @Inject constructor(
     }
 
     fun importVideosFromFolders(sourceUris: List<Uri>, targetFolderId: Long) {
-        viewModelScope.launch {
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
             _uiState.update { it.copy(isLoading = true, error = null) }
             try {
                 for (uri in sourceUris) {
                     val documentTree = DocumentFile.fromTreeUri(context, uri)
-                    documentTree?.let { scanDocumentTree(it, targetFolderId) }
+                    if (documentTree != null) {
+                        scanDocumentTree(documentTree, targetFolderId)
+                    }
                 }
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message) }
@@ -199,29 +208,95 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private suspend fun scanDocumentTree(directory: DocumentFile, targetFolderId: Long) {
-        val videoExtensions = listOf(".mp4", ".mkv", ".avi", ".mov", ".flv", ".wmv", ".webm", ".ts")
+    private suspend fun scanDocumentTree(directory: DocumentFile, targetFolderId: Long) = coroutineScope {
+        // 移除了 .m3u8 和 .ts，因为本地 m3u8（尤其是浏览器下载的）通常包含加密或路径权限问题，无法直接播放
+        val videoExtensions = listOf(".mp4", ".mkv", ".avi", ".mov", ".flv", ".wmv", ".webm")
         
-        directory.listFiles().forEach { file ->
-            if (file.isDirectory) {
-                // 递归扫描子文件夹
-                scanDocumentTree(file, targetFolderId)
-            } else if (file.isFile) {
-                val isVideoByType = file.type?.startsWith("video/") == true
-                val isVideoByExt = videoExtensions.any { ext -> file.name?.lowercase()?.endsWith(ext) == true }
-                
-                if (isVideoByType || isVideoByExt) {
-                    val video = VideoMetadataUtils.extractVideoMetadata(
-                        context,
-                        file.uri,
-                        file.length(),
-                        file.name ?: "Unknown Video"
-                    )
-                    val videoWithFolder = video.copy(folderId = targetFolderId)
-                    importVideoUseCase(videoWithFolder)
+        val deferredJobs = mutableListOf<kotlinx.coroutines.Deferred<Unit>>()
+        // 限制并发数量，避免 MediaMetadataRetriever 过多导致内存溢出或底层崩溃
+        val semaphore = Semaphore(5)
+
+        suspend fun scanRecursively(dir: DocumentFile) {
+            val files = dir.listFiles()
+            
+            // 为了提升性能，我们不再根据 m3u8 直接跳过整个文件夹（因为 MP4 可能和它们混在一起）
+            // 但是我们要避免在几千个 .ts 文件上浪费时间去评估复杂的过滤逻辑。
+            files.forEach { file ->
+                if (file.isDirectory) {
+                    // 递归扫描子文件夹
+                    scanRecursively(file)
+                } else if (file.isFile) {
+                    val name = file.name?.lowercase() ?: ""
+                    
+                    // 1. 最外层极速拦截：如果是隐藏文件夹（以 . 开头）或隐藏文件，但如果是我们要的视频格式则放行
+                    val isHidden = name.startsWith(".")
+                    val isVideoByExt = videoExtensions.any { ext -> name.endsWith(ext) }
+                    
+                    if (isHidden && !isVideoByExt) {
+                        return@forEach // 如果是隐藏文件且不是我们支持的视频格式，直接跳过
+                    }
+                    
+                    // 2. 过滤已知的流媒体碎片
+                    if (name.endsWith(".ts") || name.endsWith(".m3u8") || name.endsWith(".key")) {
+                        return@forEach // 等同于 continue，直接进入下一个文件
+                    }
+                    
+                    val isVideoByType = file.type?.startsWith("video/") == true && file.type != "video/mp2ts"
+                    
+                    if (isVideoByType || isVideoByExt) {
+                        // 只有通过了极速拦截，且确实是我们要的视频格式（如 .mp4），我们再去查它的大小
+                        // 因为 file.length() 在 SAF 下是一个耗时的跨进程 I/O 操作
+                        val isTooSmall = file.length() < 1024 * 1024 // 必须大于 1MB
+                        
+                        if (!isTooSmall) {
+                            deferredJobs.add(async {
+                                semaphore.acquire() // Use acquire() and try-finally instead of withPermit to ensure proper release
+                                try {
+                                    val documentUri = file.uri
+                                    val uriStr = documentUri.toString()
+                                    
+                                    // 1. 先查数据库，如果已经存在，直接跳过，避免耗时的元数据提取
+                                    val exists = importVideoUseCase.exists(uriStr)
+                                    
+                                    if (!exists) {
+                                        // 2. 提取元数据 (最耗时的一步，现在在并发和子线程中执行)
+                                        val video = VideoMetadataUtils.extractVideoMetadata(
+                                            context,
+                                            documentUri,
+                                            file.length(),
+                                            file.name ?: "Unknown Video"
+                                        )
+                                        
+                                        // SAF 权限保留：导入时尝试保留对这个具体文件的读取权限
+                                        try {
+                                            context.contentResolver.takePersistableUriPermission(
+                                                documentUri,
+                                                android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+                                            )
+                                        } catch (e: Exception) {
+                                            // 忽略无法获取持久化权限的文件
+                                        }
+                                        
+                                        val videoWithFolder = video.copy(folderId = targetFolderId)
+                                        // 3. 存入数据库
+                                        importVideoUseCase(videoWithFolder)
+                                    }
+                                } catch (e: Exception) {
+                                    // 提取失败时忽略该文件
+                                } finally {
+                                    semaphore.release()
+                                }
+                                Unit // Ensure the block returns Unit
+                            })
+                        }
+                    }
                 }
             }
         }
+        
+        scanRecursively(directory)
+        // 等待所有提取和插入任务完成
+        deferredJobs.awaitAll()
     }
 
     private fun getFileInfo(uri: Uri): Pair<String, Long> {

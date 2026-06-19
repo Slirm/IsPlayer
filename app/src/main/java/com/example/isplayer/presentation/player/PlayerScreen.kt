@@ -20,6 +20,7 @@ import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
@@ -54,7 +55,10 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.VideoSize
 import androidx.media3.common.util.UnstableApi
-import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.common.PlaybackException
+import androidx.media3.exoplayer.hls.HlsMediaSource
+import androidx.media3.datasource.DefaultDataSource
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.ui.PlayerView
 import com.example.isplayer.utils.bounceClick
 import kotlinx.coroutines.delay
@@ -105,23 +109,44 @@ fun PlayerScreen(
     val maxVolume = remember { audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) }
 
     val exoPlayer = remember {
-        ExoPlayer.Builder(context).build()
+        // Use DefaultDataSource.Factory but with a content resolver that can handle SAF uris properly
+        val dataSourceFactory = DefaultDataSource.Factory(context)
+        val mediaSourceFactory = DefaultMediaSourceFactory(dataSourceFactory)
+        androidx.media3.exoplayer.ExoPlayer.Builder(context)
+            .setMediaSourceFactory(mediaSourceFactory)
+            .build()
     }
 
     LaunchedEffect(currentVideoUri) {
         try {
             val uri = Uri.parse(currentVideoUri)
+            
+            // If it's a content:// URI from SAF, we must ensure we still have permission to read it
+            if (currentVideoUri.startsWith("content://")) {
+                try {
+                    // 尝试检查是否有权限，如果没有则尝试获取
+                    context.contentResolver.takePersistableUriPermission(
+                        uri,
+                        android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    )
+                } catch (e: Exception) {
+                    // Ignore, we might already have it or it's not persistable
+                }
+            }
+
             val mediaItem = if (currentVideoUri.startsWith("file:///android_asset/")) {
                 val assetPath = currentVideoUri.removePrefix("file:///android_asset/")
                 MediaItem.fromUri(Uri.parse("asset:///$assetPath"))
             } else {
-                MediaItem.fromUri(uri)
+                MediaItem.Builder()
+                    .setUri(uri)
+                    .build()
             }
             exoPlayer.setMediaItem(mediaItem)
             exoPlayer.prepare()
             exoPlayer.playWhenReady = true
         } catch (e: Exception) {
-            e.printStackTrace()
+            android.util.Log.e("PlayerScreen", "Error setting media item: ${e.message}")
         }
     }
     
@@ -175,6 +200,12 @@ fun PlayerScreen(
     // ExoPlayer Listener
     DisposableEffect(exoPlayer) {
         val listener = object : Player.Listener {
+            override fun onPlayerError(error: PlaybackException) {
+                super.onPlayerError(error)
+                // 仅保留基本错误日志，去除详细的追踪日志
+                android.util.Log.e("PlayerScreen", "ExoPlayer Error: ${error.message}")
+            }
+
             override fun onIsPlayingChanged(isPlayingState: Boolean) {
                 isPlaying = isPlayingState
             }
@@ -557,7 +588,7 @@ fun PlayerScreen(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.FormatListBulleted,
+                                    imageVector = Icons.AutoMirrored.Filled.FormatListBulleted,
                                     contentDescription = "Playlist",
                                     tint = Color.White,
                                     modifier = Modifier.size(28.dp)

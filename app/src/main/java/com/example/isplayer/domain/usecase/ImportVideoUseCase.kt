@@ -13,4 +13,8 @@ class ImportVideoUseCase @Inject constructor(
             repository.addVideo(video)
         }
     }
+
+    suspend fun exists(uri: String): Boolean {
+        return repository.getVideoByUri(uri) != null
+    }
 }

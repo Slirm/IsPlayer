@@ -12,7 +12,20 @@ object VideoMetadataUtils {
         var width = 0
         var height = 0
         try {
-            retriever.setDataSource(context, uri)
+            // For SAF URIs (content://...), MediaMetadataRetriever needs a FileDescriptor to work reliably
+            if (uri.scheme == "content") {
+                try {
+                    context.contentResolver.openFileDescriptor(uri, "r")?.use { pfd ->
+                        retriever.setDataSource(pfd.fileDescriptor)
+                    }
+                } catch (e: Exception) {
+                    // Fallback to setting uri directly if file descriptor fails
+                    retriever.setDataSource(context, uri)
+                }
+            } else {
+                retriever.setDataSource(context, uri)
+            }
+            
             val durationStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
             val widthStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)
             val heightStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)
@@ -21,7 +34,7 @@ object VideoMetadataUtils {
             width = widthStr?.toIntOrNull() ?: 0
             height = heightStr?.toIntOrNull() ?: 0
         } catch (e: Exception) {
-            e.printStackTrace()
+            android.util.Log.e("VideoMetadataUtils", "Failed to extract metadata for uri: $uri", e)
         } finally {
             try {
                 retriever.release()
