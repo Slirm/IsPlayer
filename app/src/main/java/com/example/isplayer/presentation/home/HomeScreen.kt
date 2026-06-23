@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.automirrored.filled.ViewList
@@ -46,7 +47,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.isplayer.domain.model.LocalVideo
 import com.example.isplayer.presentation.components.VideoGridItemCard
 import com.example.isplayer.presentation.components.VideoItemCard
-import com.example.isplayer.ui.theme.PrimaryBlue
 import com.example.isplayer.utils.bounceClick
 import com.example.isplayer.utils.VideoMetadataUtils
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -242,7 +242,7 @@ fun HomeScreen(
                     showImportFolderDialog = false
                     selectedFolderUris = emptyList()
                 }) {
-                    Text("导入", fontWeight = FontWeight.Bold, color = PrimaryBlue)
+                    Text("导入", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                 }
             },
             dismissButton = {
@@ -300,7 +300,7 @@ fun HomeScreen(
                         type = "video/*"
                         addFlags(android.content.Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
                         addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                             putExtra(android.provider.DocumentsContract.EXTRA_INITIAL_URI, android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI)
                         }
                     }
@@ -329,28 +329,23 @@ fun HomeScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                        .padding(horizontal = 16.dp, vertical = 14.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .bounceClick { scope.launch { drawerState.open() } }
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.surfaceVariant),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(Icons.Default.Menu, contentDescription = "Menu")
-                    }
+                    HeaderActionButton(
+                        icon = Icons.Default.Menu,
+                        contentDescription = "打开菜单",
+                        onClick = { scope.launch { drawerState.open() } }
+                    )
                     
                     Spacer(modifier = Modifier.width(12.dp))
                     
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .height(48.dp)
-                            .clip(RoundedCornerShape(24.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .height(50.dp)
+                            .clip(MaterialTheme.shapes.extraLarge)
+                            .background(MaterialTheme.colorScheme.surface)
                             .padding(horizontal = 16.dp),
                         contentAlignment = Alignment.CenterStart
                     ) {
@@ -360,7 +355,7 @@ fun HomeScreen(
                             singleLine = true,
                             textStyle = androidx.compose.ui.text.TextStyle(
                                 color = MaterialTheme.colorScheme.onSurface,
-                                fontSize = 16.sp
+                                fontSize = 15.sp
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -371,7 +366,11 @@ fun HomeScreen(
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Box(modifier = Modifier.weight(1f)) {
                                         if (searchQuery.isEmpty() && !isSearchFocused) {
-                                            Text("搜索标题...", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 16.sp)
+                                            Text(
+                                                "搜索本地视频",
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                style = MaterialTheme.typography.bodyMedium
+                                            )
                                         }
                                         innerTextField()
                                     }
@@ -382,32 +381,29 @@ fun HomeScreen(
                     
                     Spacer(modifier = Modifier.width(12.dp))
                     
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .bounceClick { isGridView = !isGridView }
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.surfaceVariant),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            if (isGridView) Icons.AutoMirrored.Filled.ViewList else Icons.Default.GridView,
-                            contentDescription = "Toggle View"
-                        )
-                    }
+                    HeaderActionButton(
+                        icon = if (isGridView) Icons.AutoMirrored.Filled.ViewList else Icons.Default.GridView,
+                        contentDescription = "切换视图",
+                        selected = isGridView,
+                        onClick = { isGridView = !isGridView }
+                    )
                     
                     Spacer(modifier = Modifier.width(8.dp))
                     
                     Box {
                         Box(
                             modifier = Modifier
-                                .size(40.dp)
+                                .size(44.dp)
                                 .bounceClick { showSortMenu = true }
                                 .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                                .background(MaterialTheme.colorScheme.surface),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = "Sort")
+                            Icon(
+                                Icons.AutoMirrored.Filled.Sort,
+                                contentDescription = "排序",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                         
                         DropdownMenu(
@@ -445,21 +441,34 @@ fun HomeScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(24.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(end = 16.dp)
                 ) {
                     items(uiState.folders) { folder ->
                         val isSelected = folder.id == uiState.currentFolderId
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.clickable { viewModel.selectFolder(folder.id) }
-                        ) {
-                            Text(
-                                text = folder.name,
-                                fontSize = 16.sp,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                color = if (isSelected) PrimaryBlue else MaterialTheme.colorScheme.onSurfaceVariant
+                        FilterChip(
+                            selected = isSelected,
+                            onClick = { viewModel.selectFolder(folder.id) },
+                            label = {
+                                Text(
+                                    text = folder.name,
+                                    maxLines = 1,
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+                            },
+                            colors = FilterChipDefaults.filterChipColors(
+                                containerColor = MaterialTheme.colorScheme.surface,
+                                labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = isSelected,
+                                borderColor = MaterialTheme.colorScheme.outlineVariant,
+                                selectedBorderColor = Color.Transparent
                             )
-                        }
+                        )
                     }
                 }
                 
@@ -467,28 +476,17 @@ fun HomeScreen(
 
                 // Content Area
                 if (uiState.isLoading && uiState.videos.isEmpty()) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = PrimaryBlue)
-                    }
+                    LoadingLibraryState()
                 } else if (uiState.videos.isEmpty()) {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = "空空如也 (～￣▽￣)～",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "点击左上角或右滑屏幕，导入你的视频吧！ ヾ(・ω・)o",
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+                    EmptyLibraryState(
+                        onImportClick = {
+                            val intent = android.content.Intent(android.content.Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
+                                addFlags(android.content.Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+                                addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            }
+                            importFolderLauncher.launch(intent)
+                        }
+                    )
                 } else {
                     if (isGridView) {
                         LazyVerticalGrid(
@@ -547,6 +545,131 @@ fun HomeScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun HeaderActionButton(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    contentDescription: String,
+    selected: Boolean = false,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .size(44.dp)
+            .bounceClick { onClick() }
+            .clip(CircleShape)
+            .background(
+                if (selected) MaterialTheme.colorScheme.primaryContainer
+                else MaterialTheme.colorScheme.surface
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun LoadingLibraryState() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        repeat(5) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(96.dp),
+                shape = MaterialTheme.shapes.large,
+                color = MaterialTheme.colorScheme.surface
+            ) {
+                Row(
+                    modifier = Modifier.padding(10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .width(120.dp)
+                            .aspectRatio(16f / 9f)
+                            .clip(MaterialTheme.shapes.medium)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth(0.72f)
+                                .height(14.dp)
+                                .clip(MaterialTheme.shapes.small)
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth(0.42f)
+                                .height(10.dp)
+                                .clip(MaterialTheme.shapes.small)
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun EmptyLibraryState(
+    onImportClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .size(72.dp)
+                .clip(MaterialTheme.shapes.extraLarge)
+                .background(MaterialTheme.colorScheme.primaryContainer),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.VideoLibrary,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(34.dp)
+            )
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+        Text(
+            text = "还没有本地视频",
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "导入一个文件夹后，视频会按当前资料库展示。",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(20.dp))
+        Button(
+            onClick = onImportClick,
+            shape = MaterialTheme.shapes.medium,
+            contentPadding = PaddingValues(horizontal = 18.dp, vertical = 12.dp)
+        ) {
+            Text("导入文件夹")
         }
     }
 }

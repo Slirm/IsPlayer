@@ -1,5 +1,6 @@
 package com.example.isplayer.presentation.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -26,7 +27,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.example.isplayer.ui.theme.PrimaryBlue
 import com.example.isplayer.utils.bounceClick
 
 @Composable
@@ -41,22 +41,26 @@ fun VideoGridItemCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        shape = MaterialTheme.shapes.large,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
-            .bounceClick(scaleDown = 0.95f, onClick = onClick)
+            .bounceClick(scaleDown = 0.98f, onClick = onClick)
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
         ) {
             // Thumbnail with duration overlay
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(16f / 9f)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(MaterialTheme.colorScheme.surfaceContainerHighest)
             ) {
                 // If using coil-video, the model can be a File or Uri
                 AsyncImage(
@@ -75,14 +79,14 @@ fun VideoGridItemCard(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(6.dp)
-                        .background(Color.Black.copy(alpha = 0.7f), RoundedCornerShape(4.dp))
-                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                        .background(Color.Black.copy(alpha = 0.68f), RoundedCornerShape(6.dp))
+                        .padding(horizontal = 6.dp, vertical = 3.dp)
                 ) {
                     Text(
                         text = duration,
                         color = Color.White,
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }
@@ -95,8 +99,8 @@ fun VideoGridItemCard(
             ) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 14.sp),
-                    color = MaterialTheme.colorScheme.onBackground,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -116,19 +120,19 @@ fun VideoGridItemCard(
                         Text(
                             text = "4K • ",
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontSize = 10.sp
+                            style = MaterialTheme.typography.labelSmall
                         )
                     } else {
                         Text(
                             text = "1080P • ",
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontSize = 10.sp
+                            style = MaterialTheme.typography.labelSmall
                         )
                     }
                     Text(
                         text = "$size • ",
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontSize = 10.sp
+                        style = MaterialTheme.typography.labelSmall
                     )
                 }
                 
@@ -137,7 +141,7 @@ fun VideoGridItemCard(
                 Text(
                     text = date,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 10.sp
+                    style = MaterialTheme.typography.labelSmall
                 )
             }
         }

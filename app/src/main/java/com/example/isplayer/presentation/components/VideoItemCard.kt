@@ -1,5 +1,6 @@
 package com.example.isplayer.presentation.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -24,8 +25,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.example.isplayer.ui.theme.PrimaryBlue
-import com.example.isplayer.ui.theme.TagOrange
 import com.example.isplayer.utils.bounceClick
 
 @Composable
@@ -41,14 +40,18 @@ fun VideoItemCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        shape = MaterialTheme.shapes.large,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .bounceClick(scaleDown = 0.95f, onClick = onClick)
+            .bounceClick(scaleDown = 0.98f, onClick = onClick)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Thumbnail
@@ -57,7 +60,7 @@ fun VideoItemCard(
                     .width(130.dp)
                     .aspectRatio(16f / 9f)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .background(MaterialTheme.colorScheme.surfaceContainerHighest)
             ) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
@@ -79,8 +82,8 @@ fun VideoItemCard(
             ) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onBackground,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -93,14 +96,14 @@ fun VideoItemCard(
                     // Tag
                     Box(
                         modifier = Modifier
-                            .background(TagOrange, RoundedCornerShape(6.dp))
+                            .background(MaterialTheme.colorScheme.tertiaryContainer, RoundedCornerShape(6.dp))
                             .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
                         Text(
                             text = if (is4K) "4K QHD" else "1080P FHD",
-                            color = Color(0xFF333333),
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold
+                            color = MaterialTheme.colorScheme.onTertiaryContainer,
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
 
@@ -109,8 +112,7 @@ fun VideoItemCard(
                     Text(
                         text = duration,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium
+                        style = MaterialTheme.typography.labelMedium
                     )
 
                     Spacer(modifier = Modifier.width(12.dp))
@@ -118,7 +120,7 @@ fun VideoItemCard(
                     CircularProgressIndicator(
                         progress = { progress },
                         modifier = Modifier.size(16.dp),
-                        color = PrimaryBlue,
+                        color = MaterialTheme.colorScheme.primary,
                         trackColor = MaterialTheme.colorScheme.surfaceVariant,
                         strokeWidth = 3.dp
                     )

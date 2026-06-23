@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -392,62 +393,51 @@ fun PlayerScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = if (isScreenLocked) 0f else 0.4f))
             ) {
                 if (!isScreenLocked) {
                     // Top Bar
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp),
+                            .padding(horizontal = 16.dp, vertical = 18.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(end = 14.dp)
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(48.dp)
-                                    .bounceClick { performExit() },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = "Back",
-                                    tint = Color.White
-                                )
-                            }
+                            PlayerIconButton(
+                                icon = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "返回",
+                                onClick = { performExit() }
+                            )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 text = currentVideoTitle,
                                 color = Color.White,
-                                fontSize = 18.sp,
+                                style = MaterialTheme.typography.titleMedium,
                                 maxLines = 1,
                                 overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                                 modifier = Modifier.weight(1f, fill = false)
                             )
                         }
-                        Box(
-                            modifier = Modifier
-                                .size(48.dp)
-                                .bounceClick {
-                                    isRotationLocked = !isRotationLocked
-                                    if (isRotationLocked) {
-                                        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
-                                    } else {
-                                        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-                                    }
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = if (isRotationLocked) Icons.Default.ScreenLockRotation else Icons.Default.ScreenRotation,
-                                contentDescription = "Rotation Lock",
-                                tint = if (isRotationLocked) MaterialTheme.colorScheme.primary else Color.White
-                            )
-                        }
+                        Spacer(modifier = Modifier.width(12.dp))
+                        PlayerIconButton(
+                            icon = if (isRotationLocked) Icons.Default.ScreenLockRotation else Icons.Default.ScreenRotation,
+                            contentDescription = "锁定旋转",
+                            selected = isRotationLocked,
+                            onClick = {
+                                isRotationLocked = !isRotationLocked
+                                if (isRotationLocked) {
+                                    activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
+                                } else {
+                                    activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                                }
+                            }
+                        )
                     }
 
                     // Bottom Bar Area
@@ -455,13 +445,14 @@ fun PlayerScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .align(Alignment.BottomCenter)
-                            .padding(horizontal = 24.dp, vertical = 16.dp)
+                            .padding(horizontal = 18.dp, vertical = 18.dp)
+                            .padding(horizontal = 8.dp, vertical = 8.dp)
                     ) {
                         // Time & Progress
                         Text(
                             text = "${formatMinSec(currentPosition)}/${formatMinSec(duration)}",
                             color = Color.White,
-                            fontSize = 14.sp
+                            style = MaterialTheme.typography.labelLarge
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         BoxWithConstraints(
@@ -512,56 +503,53 @@ fun PlayerScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(4.dp)
-                                    .background(Color.White.copy(alpha = 0.2f), RoundedCornerShape(2.dp))
+                                    .background(Color.White.copy(alpha = 0.22f), RoundedCornerShape(2.dp))
                             )
                             // Active Track
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth(fraction = progress)
                                     .height(4.dp)
-                                    .background(Color.White.copy(alpha = 0.5f), RoundedCornerShape(2.dp))
+                                    .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
                             )
                             // Thumb
                             Box(
                                 modifier = Modifier
-                                    .offset(x = (maxWidth - 32.dp) * progress)
-                                    .width(32.dp)
-                                    .height(12.dp)
-                                    .background(Color(0xFFD3D3D3), RoundedCornerShape(6.dp))
+                                    .offset(x = (maxWidth - 12.dp) * progress)
+                                    .size(12.dp)
+                                    .background(Color.White, CircleShape)
                             )
                         }
 
                         // Bottom Controls
                         Row(
-                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(48.dp)
-                                    .bounceClick { if (isPlaying) exoPlayer.pause() else exoPlayer.play() },
-                                contentAlignment = Alignment.Center
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(22.dp),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Icon(
-                                    imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                                    contentDescription = "Play/Pause",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(32.dp)
+                                PlayerIconButton(
+                                    icon = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                                    contentDescription = "播放或暂停",
+                                    prominent = true,
+                                    onClick = { if (isPlaying) exoPlayer.pause() else exoPlayer.play() }
                                 )
-                            }
-                            
-                            Box(
-                                modifier = Modifier
-                                    .size(48.dp)
-                                    .bounceClick {
-                                        // Play next video logic
+
+                                PlayerIconButton(
+                                    icon = Icons.Default.SkipNext,
+                                    contentDescription = "下一个视频",
+                                    onClick = {
                                         val currentIndex = playlist.indexOfFirst { it.uri == currentVideoUri }
                                         if (currentIndex in 0 until playlist.size - 1) {
                                             val nextVideo = playlist[currentIndex + 1]
                                             currentVideoUri = nextVideo.uri
                                             currentVideoTitle = nextVideo.title
-                                            
+
                                             if (!isRotationLocked && nextVideo.width > 0 && nextVideo.height > 0) {
                                                 if (nextVideo.width > nextVideo.height) {
                                                     activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
@@ -570,50 +558,41 @@ fun PlayerScreen(
                                                 }
                                             }
                                         }
-                                    },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.SkipNext,
-                                    contentDescription = "Next",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(32.dp)
+                                    }
                                 )
                             }
 
-                            Box(
-                                modifier = Modifier
-                                    .size(48.dp)
-                                    .bounceClick { showPlaylist = true },
-                                contentAlignment = Alignment.Center
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(26.dp),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.FormatListBulleted,
-                                    contentDescription = "Playlist",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(28.dp)
+                                PlayerIconButton(
+                                    icon = Icons.AutoMirrored.Filled.FormatListBulleted,
+                                    contentDescription = "播放列表",
+                                    selected = showPlaylist,
+                                    onClick = { showPlaylist = true }
                                 )
-                            }
 
-                            Box(
-                                modifier = Modifier
-                                    .size(48.dp)
-                                    .bounceClick {
-                                        playbackSpeed = when (playbackSpeed) {
-                                            1f -> 1.25f
-                                            1.25f -> 1.5f
-                                            1.5f -> 2f
-                                            else -> 1f
-                                        }
-                                    },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "${playbackSpeed}x",
-                                    color = Color.White,
-                                    fontSize = 16.sp,
-                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-                                )
+                                Box(
+                                    modifier = Modifier
+                                        .size(42.dp)
+                                        .bounceClick {
+                                            playbackSpeed = when (playbackSpeed) {
+                                                1f -> 1.25f
+                                                1.25f -> 1.5f
+                                                1.5f -> 2f
+                                                else -> 1f
+                                            }
+                                        },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "${playbackSpeed}x",
+                                        color = Color.White,
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                                    )
+                                }
                             }
                         }
                     }
@@ -624,8 +603,9 @@ fun PlayerScreen(
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
                         .padding(end = 16.dp)
-                        .background(Color.Black.copy(alpha = 0.5f), shape = MaterialTheme.shapes.medium)
-                        .size(48.dp)
+                        .size(42.dp)
+                        .clip(MaterialTheme.shapes.medium)
+                        .background(Color.Black.copy(alpha = 0.48f))
                         .bounceClick { isScreenLocked = !isScreenLocked },
                     contentAlignment = Alignment.Center
                 ) {
@@ -646,11 +626,11 @@ fun PlayerScreen(
             ) {
                 Text(
                     text = it,
-                    color = Color.White,
-                    fontSize = 24.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .background(Color.Black.copy(0.6f), shape = MaterialTheme.shapes.medium)
+                        color = Color.White,
+                        style = MaterialTheme.typography.titleLarge,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                        .background(Color.Black.copy(0.64f), shape = MaterialTheme.shapes.large)
                         .padding(24.dp)
                 )
             }
@@ -658,9 +638,9 @@ fun PlayerScreen(
 
         if (volumeLevel != null || brightnessLevel != null) {
             val text = if (volumeLevel != null) {
-                "Volume: ${(volumeLevel!! * 100).toInt()}%"
+                "音量 ${(volumeLevel!! * 100).toInt()}%"
             } else {
-                "Brightness: ${(brightnessLevel!! * 100).toInt()}%"
+                "亮度 ${(brightnessLevel!! * 100).toInt()}%"
             }
             Box(
                 modifier = Modifier
@@ -671,9 +651,9 @@ fun PlayerScreen(
                 Text(
                     text = text,
                     color = Color.White,
-                    fontSize = 16.sp,
+                    style = MaterialTheme.typography.labelLarge,
                     modifier = Modifier
-                        .background(Color.Black.copy(0.6f), shape = MaterialTheme.shapes.small)
+                        .background(Color.Black.copy(0.64f), shape = MaterialTheme.shapes.medium)
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                 )
             }
@@ -700,7 +680,7 @@ fun PlayerScreen(
                 modifier = Modifier
                     .fillMaxHeight()
                     .width(300.dp)
-                    .background(Color.Black.copy(alpha = 0.8f))
+                    .background(Color(0xEE101820))
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     Row(
@@ -710,7 +690,7 @@ fun PlayerScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("播放列表", color = Color.White, fontSize = 18.sp)
+                        Text("播放列表", color = Color.White, style = MaterialTheme.typography.titleMedium)
                         IconButton(onClick = { showPlaylist = false }) {
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, "Close", tint = Color.White)
                         }
@@ -728,8 +708,8 @@ fun PlayerScreen(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(if (video.uri == currentVideoUri) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f) else Color.Transparent)
+                                    .clip(MaterialTheme.shapes.medium)
+                                    .background(if (video.uri == currentVideoUri) MaterialTheme.colorScheme.primary.copy(alpha = 0.24f) else Color.Transparent)
                                     .clickable {
                                         currentVideoUri = video.uri
                                         currentVideoTitle = video.title
@@ -765,13 +745,13 @@ fun PlayerScreen(
                                     Text(
                                         text = video.title,
                                         color = if (video.uri == currentVideoUri) MaterialTheme.colorScheme.primary else Color.White,
-                                        fontSize = 14.sp,
+                                        style = MaterialTheme.typography.titleSmall,
                                         maxLines = 2
                                     )
                                     Text(
                                         text = formatMinSec(video.duration),
-                                        color = Color.Gray,
-                                        fontSize = 12.sp
+                                        color = Color.White.copy(alpha = 0.62f),
+                                        style = MaterialTheme.typography.labelMedium
                                     )
                                 }
                             }
@@ -780,6 +760,37 @@ fun PlayerScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun PlayerIconButton(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    contentDescription: String,
+    selected: Boolean = false,
+    prominent: Boolean = false,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .size(if (prominent) 44.dp else 40.dp)
+            .clip(MaterialTheme.shapes.medium)
+            .background(
+                when {
+                    prominent -> MaterialTheme.colorScheme.primary
+                    selected -> MaterialTheme.colorScheme.primary.copy(alpha = 0.28f)
+                    else -> Color.White.copy(alpha = 0.10f)
+                }
+            )
+            .bounceClick(scaleDown = 0.94f) { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = Color.White,
+            modifier = Modifier.size(if (prominent) 26.dp else 22.dp)
+        )
     }
 }
 

@@ -13,14 +13,17 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.draw.scale
 
 fun Modifier.bounceClick(
-    scaleDown: Float = 0.85f,
+    scaleDown: Float = 0.92f,
     onClick: () -> Unit
 ) = composed {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(
         targetValue = if (isPressed) scaleDown else 1f,
-        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessMedium
+        ),
         label = "bounceScale"
     )
     
